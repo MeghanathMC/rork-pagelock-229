@@ -2,6 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import createContextHook from '@nkzw/create-context-hook';
 import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Platform } from 'react-native';
+import { supabase } from '@/lib/supabase';
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 interface UserProfile {
   currentBookTitle: string;
@@ -76,11 +79,27 @@ export const [AppProvider, useAppState] = createContextHook(() => {
     },
   });
 
+  const sessionQuery = useQuery({
+    queryKey: ['supabaseSession'],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getSession();
+      return !!data.session;
+    },
+  });
+
   useEffect(() => {
-    if (stateQuery.data) {
-      setState(stateQuery.data);
-    }
-  }, [stateQuery.data]);
+    if (sessionQuery.isLoading) return;
+    const base = stateQuery.data ?? {
+      hasCompletedOnboarding: false,
+      isAuthenticated: false,
+      isPro: false,
+      profile: DEFAULT_PROFILE,
+      streak: DEFAULT_STREAK,
+      readingLogs: [],
+      todayCompleted: false,
+    };
+    setState({ ...base, isAuthenticated: sessionQuery.data ?? false });
+  }, [stateQuery.data, sessionQuery.data, sessionQuery.isLoading]);
 
   const persistState = useCallback(async (newState: AppState) => {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
@@ -145,6 +164,18 @@ export const [AppProvider, useAppState] = createContextHook(() => {
   }, [state.streak.lastCompletedDate, updateState]);
 
   const signOut = useCallback(async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      console.warn('[AppProvider] Supabase signOut error:', e);
+    }
+    if (Platform.OS !== 'web') {
+      try {
+        await GoogleSignin.signOut();
+      } catch (e) {
+        console.warn('[AppProvider] GoogleSignin signOut error:', e);
+      }
+    }
     await AsyncStorage.removeItem(STORAGE_KEY);
     setState({
       hasCompletedOnboarding: false,
@@ -156,11 +187,12 @@ export const [AppProvider, useAppState] = createContextHook(() => {
       todayCompleted: false,
     });
     void queryClient.invalidateQueries({ queryKey: ['appState'] });
+    void queryClient.invalidateQueries({ queryKey: ['supabaseSession'] });
   }, [queryClient]);
 
   return useMemo(() => ({
     ...state,
-    isLoading: stateQuery.isLoading,
+    isLoading: stateQuery.isLoading || sessionQuery.isLoading,
     updateState,
     updateProfile,
     completeOnboarding,
@@ -169,7 +201,7 @@ export const [AppProvider, useAppState] = createContextHook(() => {
     completeToday,
     resetDaily,
     signOut,
-  }), [state, stateQuery.isLoading, updateState, updateProfile, completeOnboarding, setAuthenticated, setPro, completeToday, resetDaily, signOut]);
+  }), [state, stateQuery.isLoading, sessionQuery.isLoading, updateState, updateProfile, completeOnboarding, setAuthenticated, setPro, completeToday, resetDaily, signOut]);
 });
 
 function getYesterdayDate(): string {

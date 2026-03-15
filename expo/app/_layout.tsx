@@ -8,6 +8,7 @@ import { AppProvider } from "@/providers/AppProvider";
 import { colors } from "@/constants/theme";
 import { Platform } from "react-native";
 import Purchases from "react-native-purchases";
+import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
 function getRCToken() {
   if (__DEV__ || Platform.OS === "web") return process.env.EXPO_PUBLIC_REVENUECAT_TEST_API_KEY ?? "";
@@ -53,6 +54,10 @@ export default function RootLayout() {
         } catch (e) {
           console.warn('[RevenueCat] configure failed:', e);
         }
+      }
+      const webClientId = process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+      if (webClientId) {
+        GoogleSignin.configure({ webClientId });
       }
     }
     void SplashScreen.hideAsync();

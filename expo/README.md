@@ -66,6 +66,24 @@ This project is built with the most popular native mobile cross-platform technic
 - **React Query** - Server state management
 - **Lucide React Native** - Beautiful icons
 
+## Google Auth Setup
+
+PageLock uses Supabase Auth with native Google Sign-In (account picker dialog). To enable it:
+
+1. Copy `.env.example` to `.env` and fill in:
+   - `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY` from [Supabase Dashboard](https://supabase.com/dashboard)
+   - `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID` (Web OAuth Client ID from [Google Cloud Console](https://console.cloud.google.com/apis/credentials))
+
+2. In Supabase: **Authentication > Providers > Google** – enable and add Web Client ID + Secret, plus Android/iOS Client IDs.
+
+3. In `app.json`, replace the `iosUrlScheme` placeholder with your iOS OAuth Client's reversed ID (e.g. `com.googleusercontent.apps.123456789-xxxxx`).
+
+4. Build and run (native Google Sign-In requires a dev build, not Expo Go):
+   ```bash
+   npx expo prebuild --clean
+   npx expo run:android
+   ```
+
 ## How can I test my app?
 
 ### **On your phone (Recommended)**

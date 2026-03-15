@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"C:\\\\Users\\\\megha\\\\OneDrive\\\\Documents\\\\New project\\\\rork-pagelock-229\\\\expo\\\\app\\\\\\(tabs\\)\")",
+      "Bash(ls \"C:\\\\Users\\\\megha\\\\OneDrive\\\\Documents\\\\New project\\\\rork-pagelock-229\\\\expo\\\\app\\\\\\(tabs\\)\\\\\\(home\\)\")",
+      "Bash(ls \"C:\\\\Users\\\\megha\\\\OneDrive\\\\Documents\\\\New project\\\\rork-pagelock-229\\\\expo\\\\app\\\\\\(tabs\\)\\\\streaks\")",
+      "Bash(ls \"C:\\\\Users\\\\megha\\\\OneDrive\\\\Documents\\\\New project\\\\rork-pagelock-229\\\\expo\\\\app\\\\\\(tabs\\)\\\\settings\")"
+    ]
+  }
+}
