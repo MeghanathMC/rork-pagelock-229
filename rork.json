@@ -1,0 +1,9 @@
+{
+  "apps": [
+    {
+      "name": "PageLock",
+      "path": "expo",
+      "framework": "react-native"
+    }
+  ]
+}
